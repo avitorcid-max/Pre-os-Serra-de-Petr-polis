@@ -1,10 +1,28 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 
 st.set_page_config(layout="wide")
 
+# =============================
+# DATA E HORA
+# =============================
+
+agora = datetime.now()
+
 st.title("🏨 Inteligência de Preços – Serra de Petrópolis")
+
+col_data, col_hora = st.columns(2)
+
+col_data.metric("📅 Data atual", agora.strftime("%d/%m/%Y"))
+col_hora.metric("⏰ Hora atual", agora.strftime("%H:%M:%S"))
+
+st.divider()
+
+# =============================
+# CARREGAR DADOS
+# =============================
 
 df = pd.read_csv("tarifas.csv")
 
@@ -24,45 +42,87 @@ col3.metric("Hotel mais caro",caro.hotel,f"R$ {caro.preco}")
 
 st.divider()
 
-# ranking visual
+# =============================
+# RANKING
+# =============================
 
 st.subheader("📊 Ranking de preços")
 
 ranking = df.sort_values("preco")
+
+ranking["cor"] = ranking["hotel"].apply(
+    lambda x: "Castelo de Itaipava" if x == "Castelo de Itaipava" else "Outros"
+)
 
 fig_rank = px.bar(
 ranking,
 x="hotel",
 y="preco",
 text="preco",
-color="preco",
+color="cor",
+color_discrete_map={
+"Castelo de Itaipava":"orange",
+"Outros":"steelblue"
+}
 )
 
 st.plotly_chart(fig_rank,use_container_width=True)
 
-# competitividade
+st.divider()
+
+# =============================
+# COMPETITIVIDADE
+# =============================
 
 st.subheader("📉 Competitividade de preço")
 
 df["vs_media"] = df["preco"] - media
+
+df["cor"] = df["hotel"].apply(
+lambda x: "Castelo de Itaipava" if x == "Castelo de Itaipava" else "Outros"
+)
 
 fig_comp = px.scatter(
 df,
 x="hotel",
 y="vs_media",
 size="preco",
-color="vs_media",
+color="cor",
+color_discrete_map={
+"Castelo de Itaipava":"orange",
+"Outros":"blue"
+}
 )
 
 st.plotly_chart(fig_comp,use_container_width=True)
 
 st.divider()
 
-# histórico
+# =============================
+# HISTÓRICO
+# =============================
 
 st.subheader("📈 Evolução de tarifas")
 
 hist = pd.read_csv("historico.csv")
+
+hist["data"] = pd.to_datetime(hist["data"])
+
+# FILTRAR 1 ANO
+hist = hist[hist["data"] >= (datetime.now() - pd.DateOffset(years=1))]
+
+# CALENDÁRIO
+data_inicio = st.date_input(
+"Início do período",
+hist["data"].min()
+)
+
+data_fim = st.date_input(
+"Fim do período",
+hist["data"].max()
+)
+
+hist = hist[(hist["data"] >= pd.to_datetime(data_inicio)) & (hist["data"] <= pd.to_datetime(data_fim))]
 
 fig_hist = px.line(
 hist,
@@ -76,7 +136,9 @@ st.plotly_chart(fig_hist,use_container_width=True)
 
 st.divider()
 
-# mapa (coordenadas simples)
+# =============================
+# MAPA
+# =============================
 
 st.subheader("🗺️ Mapa de hotéis")
 
