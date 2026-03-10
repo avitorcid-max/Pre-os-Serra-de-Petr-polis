@@ -1,10 +1,19 @@
-hotel,preco,data
-Castelo de Itaipava,,2026-03-09
-Kastel Itaipava Hotel,187.0,2026-03-09
-Flat Itaipava,,2026-03-09
-Villa Itaipava Resort,546.0,2026-03-09
-Altenhaus Pousada,460.0,2026-03-09
-Arcadia Pousada Itaipava,187.0,2026-03-09
-Tankamana,,2026-03-09
-Hotel Caminhos de Itaipava,213.0,2026-03-09
-Grande Hotel Petrópolis,351.0,2026-03-09
+hotel,preco,data,hora
+Castelo de Itaipava,,2026-03-09,
+Kastel Itaipava Hotel,187.0,2026-03-09,
+Flat Itaipava,,2026-03-09,
+Villa Itaipava Resort,546.0,2026-03-09,
+Altenhaus Pousada,460.0,2026-03-09,
+Arcadia Pousada Itaipava,187.0,2026-03-09,
+Tankamana,,2026-03-09,
+Hotel Caminhos de Itaipava,213.0,2026-03-09,
+Grande Hotel Petrópolis,351.0,2026-03-09,
+Castelo de Itaipava,,2026-03-10,10:28
+Kastel Itaipava Hotel,,2026-03-10,10:28
+Arcadia Pousada Itaipava,,2026-03-10,10:28
+Hotel Caminhos de Itaipava,,2026-03-10,10:28
+Grande Hotel Petrópolis,,2026-03-10,10:29
+Altenhaus Pousada,,2026-03-10,10:29
+Villa Itaipava Resort,,2026-03-10,10:29
+Tankamana,,2026-03-10,10:29
+Flat Itaipava,,2026-03-10,10:29
