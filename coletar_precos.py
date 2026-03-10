@@ -1,9 +1,14 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 import pandas as pd
-from datetime import datetime
 import time
+import urllib.parse
+import re
+from datetime import datetime
 
+# hotéis monitorados
 hoteis = [
 "Castelo de Itaipava",
 "Kastel Itaipava Hotel",
@@ -16,65 +21,62 @@ hoteis = [
 "Flat Itaipava"
 ]
 
-data_hoje = datetime.now().strftime("%Y-%m-%d")
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")
+options.add_argument("--window-size=1920,1080")
 
-precos = []
+driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=options
+)
+
+dados = []
 
 for hotel in hoteis:
 
     print("Buscando:", hotel)
 
-    busca = hotel.replace(" ", "+")
+    busca = urllib.parse.quote(hotel + " hotel")
 
-    url = f"https://www.google.com/search?q={busca}+hotel+price"
+    url = f"https://www.google.com/travel/hotels?q={busca}"
 
-    headers = {
-        "User-Agent":"Mozilla/5.0"
-    }
+    driver.get(url)
+
+    time.sleep(8)
+
+    preco = None
 
     try:
 
-        r = requests.get(url,headers=headers)
-        soup = BeautifulSoup(r.text,"html.parser")
+        elementos = driver.find_elements(By.XPATH,"//span[contains(text(),'R$')]")
 
-        preco = None
+        if elementos:
 
-        for span in soup.find_all("span"):
+            texto = elementos[0].text
 
-            texto = span.text
+            numero = re.sub(r"[^\d]", "", texto)
 
-            if "R$" in texto:
-
-                preco = texto.replace("R$","").replace(".","").replace(",","")
-
-                break
-
-        if preco:
-            preco = float(preco)
-        else:
-            preco = None
+            if numero:
+                preco = int(numero)
 
     except:
+        pass
 
-        preco = None
-
-    precos.append({
+    dados.append({
         "hotel":hotel,
         "preco":preco,
-        "data":data_hoje,
+        "data":datetime.now().strftime("%Y-%m-%d"),
         "hora":datetime.now().strftime("%H:%M")
     })
 
-    time.sleep(2)
+driver.quit()
 
-df = pd.DataFrame(precos)
+df = pd.DataFrame(dados)
 
+# salvar tarifas atuais
 df.to_csv("tarifas.csv",index=False)
 
-# =============================
-# HISTÓRICO
-# =============================
-
+# atualizar histórico
 try:
 
     hist = pd.read_csv("historico.csv")
@@ -87,4 +89,4 @@ except:
 
 hist.to_csv("historico.csv",index=False)
 
-print("✔ Preços coletados")
+print("✔ Coleta finalizada")
